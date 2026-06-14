@@ -227,7 +227,11 @@ function drawMiniGraph(host) {
 // or set MSAL_CLIENT_ID). Authority "common" allows any work/school/personal account.
 const MSAL_CLIENT_ID = ""; // optionally hard-code; otherwise set via the in-app dialog
 const MSAL_AUTHORITY = "https://login.microsoftonline.com/common";
-function msalClientId() { return localStorage.getItem("orca_msal_client") || MSAL_CLIENT_ID; }
+function msalClientId() {
+  return localStorage.getItem("orca_msal_client")
+    || (typeof window !== "undefined" && window.ORCA_MSAL_CLIENT_ID)
+    || MSAL_CLIENT_ID;
+}
 
 async function signInMicrosoft() {
   const clientId = msalClientId();

@@ -1,0 +1,9 @@
+**/.venv
+.git
+**/__pycache__
+*.pyc
+backend/oracle.db
+*.db
+.claude
+node_modules
+*.log
