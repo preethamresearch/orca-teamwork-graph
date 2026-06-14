@@ -1334,16 +1334,27 @@ function statusForColumn(kind, colKey) {
 }
 const prettyVal = (v) => String(v).replace(/_/g, " ");
 
+// normalize a stored status to one of the kind's defined options
+function normStatus(kind, raw) {
+  const opts = statusOptions(kind);
+  const s = String(raw || "").toLowerCase().trim().replace(/\s+/g, "_");
+  return opts.includes(s) ? s : opts[0];
+}
+
 function renderBoard(kind, meta, objects) {
-  const buckets = { todo: [], inprogress: [], inreview: [], done: [] };
-  objects.forEach((o) => buckets[columnFor(o.attrs && o.attrs.status)].push(o));
-  const cols = BOARD_COLUMNS.map((col) => {
-    const cards = buckets[col.key].map((o) => {
+  // columns are this object type's OWN statuses, so every column is a valid drop target
+  const statuses = statusOptions(kind);
+  const buckets = {};
+  statuses.forEach((s) => (buckets[s] = []));
+  objects.forEach((o) => buckets[normStatus(kind, (o.attrs || {}).status)].push(o));
+
+  const cols = statuses.map((s) => {
+    const cards = buckets[s].map((o) => {
       const a = o.attrs || {};
       const badges = [];
       if (a.priority) badges.push(`<span class="kbadge pri-${esc(a.priority)}">${esc(a.priority)}</span>`);
       if (a.severity) badges.push(`<span class="kbadge sev-${esc(a.severity)}">${esc(a.severity)}</span>`);
-      const key = (kind === "bug" ? "BUG-" : "TASK-") + o.id.slice(-4).toUpperCase();
+      const key = (kind === "bug" ? "BUG-" : kind.slice(0, 4).toUpperCase() + "-") + o.id.slice(-4).toUpperCase();
       return `<div class="kcard" draggable="true" data-card-id="${esc(o.id)}">
         <div class="kcard-title">${meta.icon} ${esc(o.label)}</div>
         <div class="kcard-meta">
@@ -1354,9 +1365,9 @@ function renderBoard(kind, meta, objects) {
         </div>
       </div>`;
     }).join("");
-    return `<div class="kcol">
-      <div class="kcol-head"><span>${esc(col.label)}</span><span class="kcount">${buckets[col.key].length}</span></div>
-      <div class="kcol-body" data-col="${col.key}">${cards || `<div class="kempty">Drop here</div>`}</div>
+    return `<div class="kcol" data-col="${esc(s)}">
+      <div class="kcol-head"><span>${esc(prettyVal(s))}</span><span class="kcount">${buckets[s].length}</span></div>
+      <div class="kcol-body" data-col="${esc(s)}">${cards || `<div class="kempty">Drop here</div>`}</div>
     </div>`;
   }).join("");
   return `<div class="kboard">${cols}</div>`;
@@ -1375,7 +1386,7 @@ function wireBoardDnD(body, kind) {
     col.addEventListener("drop", async (e) => {
       e.preventDefault(); col.classList.remove("drop-over");
       if (!dragId) return;
-      const newStatus = statusForColumn(kind, col.dataset.col);
+      const newStatus = col.dataset.col;  // column IS the exact status for this kind
       try {
         await API.updateObject(dragId, { fields: { status: newStatus } });
         loadObjects(kind);
