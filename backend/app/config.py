@@ -42,6 +42,11 @@ class Settings:
     foundry_iq_search_key: str = os.getenv("FOUNDRY_IQ_SEARCH_KEY", "").strip()
 
     # --- Work IQ (Microsoft Graph) ---
+    # --- NVIDIA NIM (OpenAI-compatible) — generative synthesis when Azure OpenAI quota is unavailable ---
+    nvidia_api_key: str = os.getenv("NVIDIA_API_KEY", "").strip()
+    nvidia_model: str = os.getenv("NVIDIA_MODEL", "nvidia/nemotron-3-ultra-550b-a55b").strip()
+    nvidia_base_url: str = os.getenv("NVIDIA_BASE_URL", "https://integrate.api.nvidia.com/v1").strip()
+
     work_iq_tenant_id: str = os.getenv("WORK_IQ_TENANT_ID", "").strip()
     work_iq_client_id: str = os.getenv("WORK_IQ_CLIENT_ID", "").strip()
     work_iq_client_secret: str = os.getenv("WORK_IQ_CLIENT_SECRET", "").strip()

@@ -23,13 +23,54 @@ SYSTEM_PROMPT = (
 
 
 def synthesize(question: str, narrative: str, evidence_block: str) -> str:
+    # 1) Azure AI Foundry Agent (preferred, when a model is available)
     if settings.live_foundry:
         try:
             return _synthesize_live(question, narrative, evidence_block)
-        except Exception as e:  # fall back rather than fail the request
-            return f"{narrative}\n\n_(Note: live Foundry synthesis unavailable: {e}; showing grounded reasoning.)_"
-    # local-demo: the structured narrative IS the answer
+        except Exception:
+            pass
+    # 2) NVIDIA NIM (OpenAI-compatible) — generative synthesis when Azure OpenAI quota is gated
+    if settings.nvidia_api_key:
+        try:
+            return _synthesize_nvidia(question, narrative, evidence_block)
+        except Exception:
+            pass
+    # 3) Local-demo: the structured reasoning narrative IS the answer
     return narrative
+
+
+def _synthesize_nvidia(question: str, narrative: str, evidence_block: str) -> str:
+    """Generate the answer with an NVIDIA NIM model (OpenAI-compatible chat API),
+    constrained to the supplied Foundry IQ evidence + graph reasoning trace."""
+    import json
+    import urllib.request
+
+    url = settings.nvidia_base_url.rstrip("/") + "/chat/completions"
+    payload = {
+        "model": settings.nvidia_model,
+        "messages": [
+            {"role": "system", "content": SYSTEM_PROMPT},
+            {"role": "user", "content": (
+                f"Question: {question}\n\n"
+                f"Graph reasoning trace:\n{narrative}\n\n"
+                f"Grounded evidence:\n{evidence_block}\n\n"
+                "Write a concise, well-structured answer grounded ONLY in the evidence above. "
+                "Cite sources with their [n] markers. Do not invent people, projects, or facts."
+            )},
+        ],
+        "temperature": 0.2,
+        "max_tokens": 700,
+    }
+    req = urllib.request.Request(
+        url, data=json.dumps(payload).encode(), method="POST",
+        headers={
+            "Authorization": f"Bearer {settings.nvidia_api_key}",
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+        })
+    with urllib.request.urlopen(req, timeout=60) as resp:
+        data = json.load(resp)
+    return data["choices"][0]["message"]["content"].strip()
 
 
 def _synthesize_live(question: str, narrative: str, evidence_block: str) -> str:
