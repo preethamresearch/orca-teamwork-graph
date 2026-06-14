@@ -1,9 +1,14 @@
 // Orca — The Teamwork Graph for AI agents
 // Vanilla JS ES module. No build step. Talks to backend at API_BASE.
 
-// API base: override for hosted deploys by setting window.ORCA_API_BASE in index.html
-// (e.g. your Azure/Render backend URL). Defaults to local backend.
-const API_BASE = (typeof window !== "undefined" && window.ORCA_API_BASE) || "http://127.0.0.1:8000";
+// API base:
+//  - explicit override: window.ORCA_API_BASE (set in index.html)
+//  - local dev (frontend on :5500, backend on :8000): point at :8000
+//  - hosted single-service (backend serves this page): same-origin ("")
+const API_BASE =
+  (typeof window !== "undefined" && window.ORCA_API_BASE != null) ? window.ORCA_API_BASE
+  : (typeof location !== "undefined" && location.port === "5500") ? "http://127.0.0.1:8000"
+  : "";
 const TOKEN_KEY = "orca_token";
 
 // ---------------------------------------------------------------------------

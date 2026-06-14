@@ -197,12 +197,17 @@ class McpReq(BaseModel):
     name: str | None = None
 
 
+def _mcp_demo_server() -> str:
+    import os, pathlib
+    return os.getenv("ORCA_MCP_SERVER") or str(pathlib.Path(__file__).resolve().parents[2] / "mcp" / "demo_resource_server.py")
+
+
 @app.post("/connectors/mcp")
 async def mcp_connect(request: Request, req: McpReq):
     _, ws = _ws(request)
-    import sys, pathlib
+    import sys
     command = req.command or sys.executable
-    args = req.args or [str(pathlib.Path(__file__).resolve().parents[2] / "mcp" / "demo_resource_server.py")]
+    args = req.args or [_mcp_demo_server()]
     name = req.name or ("MCP · bundled demo server" if not req.command else None)
     try:
         return await connectors.ingest_mcp(ws["id"], command, args, name)
@@ -278,3 +283,14 @@ def clear(request: Request):
     _, ws = _ws(request)
     db.clear_workspace_graph(ws["id"])
     return {"ok": True, "stats": db.workspace_stats(ws["id"])}
+
+
+# ----------------------------- static frontend (single-service deploy) -----------------------------
+# When ORCA_WEB_DIR (or the repo's ../../web) exists, serve the web app from the same
+# origin as the API. Mounted last so all API routes above take precedence.
+import os as _os, pathlib as _pathlib
+from fastapi.staticfiles import StaticFiles as _StaticFiles
+
+_web_dir = _os.getenv("ORCA_WEB_DIR") or str(_pathlib.Path(__file__).resolve().parents[2] / "web")
+if _os.path.isdir(_web_dir):
+    app.mount("/", _StaticFiles(directory=_web_dir, html=True), name="web")
