@@ -129,8 +129,13 @@ def retrieve(query: str, top_k: int = 4, documents: list[dict] | None = None) ->
     If `documents` (the workspace's own ingested docs) are given, ground over
     those; otherwise fall back to the bundled enterprise corpus.
     """
-    if settings.live_foundry and not documents:
-        return _retrieve_live(query, top_k)
+    if settings.live_search:
+        try:
+            live = _retrieve_live(query, top_k)
+            if live:
+                return live
+        except Exception:
+            pass  # fall back to local grounding on any error
 
     if documents is not None:
         corpus = _chunks_from_documents(documents)
@@ -154,31 +159,60 @@ def retrieve(query: str, top_k: int = 4, documents: list[dict] | None = None) ->
     return top
 
 
-def _retrieve_live(query: str, top_k: int) -> list[Chunk]:
-    """Live Foundry IQ retrieval via Azure AI Search (hybrid + semantic rerank)."""
-    from azure.core.credentials import AzureKeyCredential
-    from azure.search.documents import SearchClient
+def _search_url(path: str) -> str:
+    ep = settings.foundry_iq_search_endpoint.rstrip("/")
+    return f"{ep}/indexes/{settings.foundry_iq_search_index}/docs/{path}?api-version=2023-11-01"
 
-    client = SearchClient(
-        endpoint=settings.foundry_iq_search_endpoint,
-        index_name=settings.foundry_iq_search_index,
-        credential=AzureKeyCredential(settings.foundry_iq_search_key),
-    )
-    results = client.search(
-        search_text=query,
-        query_type="semantic",
-        semantic_configuration_name="default",
-        top=top_k,
-    )
-    chunks: list[Chunk] = []
-    for r in results:
-        chunks.append(
-            Chunk(
-                doc_id=r.get("doc_id", r.get("id", "")),
-                title=r.get("title", ""),
-                section=r.get("section", ""),
-                text=r.get("content", ""),
-                score=round(float(r.get("@search.reranker_score", 0.0)) / 4.0, 3),
-            )
+
+def _retrieve_live(query: str, top_k: int) -> list[Chunk]:
+    """Live Foundry IQ retrieval via Azure AI Search (full-text; free-tier compatible)."""
+    import json
+    import urllib.request
+
+    body = json.dumps({"search": query, "top": top_k, "queryType": "simple", "searchMode": "any"}).encode()
+    req = urllib.request.Request(
+        _search_url("search"), data=body, method="POST",
+        headers={"api-key": settings.foundry_iq_search_key, "Content-Type": "application/json"})
+    with urllib.request.urlopen(req, timeout=15) as resp:
+        data = json.load(resp)
+    results = data.get("value", [])
+    hi = max((r.get("@search.score", 0.0) for r in results), default=1.0) or 1.0
+    return [
+        Chunk(
+            doc_id=r.get("doc_id") or r.get("id", ""),
+            title=r.get("title", ""),
+            section=r.get("section", ""),
+            text=r.get("content", ""),
+            score=round(float(r.get("@search.score", 0.0)) / hi, 3),
         )
-    return chunks
+        for r in results
+    ]
+
+
+def index_documents(documents: list[dict]) -> int:
+    """Push documents to the Azure AI Search index so they ground live (Foundry IQ).
+    No-op unless live search is configured. Returns number of chunks indexed."""
+    if not settings.live_search:
+        return 0
+    import json
+    import re
+    import urllib.request
+
+    chunks = _chunks_from_documents(documents)
+    payload = [{
+        "@search.action": "mergeOrUpload",
+        "id": re.sub(r"[^A-Za-z0-9_\-=]", "_", f"{c.doc_id}-{i}"),
+        "doc_id": c.doc_id, "title": c.title, "section": c.section, "content": c.text,
+    } for i, c in enumerate(chunks)]
+    if not payload:
+        return 0
+    body = json.dumps({"value": payload}).encode()
+    req = urllib.request.Request(
+        _search_url("index"), data=body, method="POST",
+        headers={"api-key": settings.foundry_iq_search_key, "Content-Type": "application/json"})
+    try:
+        with urllib.request.urlopen(req, timeout=15) as resp:
+            json.load(resp)
+        return len(payload)
+    except Exception:
+        return 0

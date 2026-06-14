@@ -49,6 +49,11 @@ class Settings:
     force_local_demo: bool = _b("ORACLE_LOCAL_DEMO", False)
 
     @property
+    def live_search(self) -> bool:
+        """Foundry IQ grounding via live Azure AI Search (no model/OpenAI quota needed)."""
+        return bool(self.foundry_iq_search_endpoint and self.foundry_iq_search_key) and not self.force_local_demo
+
+    @property
     def live_foundry(self) -> bool:
         """True when we have enough config to call live Azure AI Foundry."""
         return bool(self.ai_project_endpoint and self.foundry_iq_search_endpoint) and not self.force_local_demo
@@ -59,7 +64,11 @@ class Settings:
 
     @property
     def mode(self) -> str:
-        return "live-foundry" if self.live_foundry else "local-demo"
+        if self.live_foundry:
+            return "live-foundry"
+        if self.live_search:
+            return "foundry-iq-live"  # grounding live on Azure AI Search; synthesis local/pluggable
+        return "local-demo"
 
 
 settings = Settings()

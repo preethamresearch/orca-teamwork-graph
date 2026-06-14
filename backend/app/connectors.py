@@ -20,9 +20,11 @@ from .extract import extract
 
 # ---------------- upload / paste ----------------
 def ingest_text(workspace_id: str, title: str, text: str) -> dict:
+    from .foundry_iq import index_documents
     src = db.add_source(workspace_id, "upload", title or "Pasted knowledge", "ingested")["id"]
-    # store the raw doc for grounding (Foundry IQ)
+    # store the raw doc for grounding (Foundry IQ) — local store + live Azure AI Search index
     db.add_document(workspace_id, src, title or "Pasted knowledge", text)
+    index_documents([{"id": src, "title": title or "Pasted knowledge", "content": text}])
     # extract objects + relationships
     frag = extract(text, title)
     for n in frag["nodes"]:
@@ -104,11 +106,13 @@ def connect_sample(workspace_id: str, kind: str) -> dict:
 
 # ---------------- MCP client (consume any MCP server as a source) ----------------
 def _ingest_docs(workspace_id: str, src_id: str, docs: list[tuple[str, str]]) -> dict:
+    from .foundry_iq import index_documents
     nodes = edges = 0
     for title, text in docs:
         if not text:
             continue
         db.add_document(workspace_id, src_id, title, text)
+        index_documents([{"id": f"{src_id}-{title}", "title": title, "content": text}])
         frag = extract(text, title)
         for n in frag["nodes"]:
             db.upsert_node(workspace_id, n["id"], n["kind"], n["label"], n.get("attrs", {}), src_id)
