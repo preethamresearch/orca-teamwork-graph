@@ -1,0 +1,37 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+
+# Secrets / credentials — never commit
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.crt
+secrets.json
+credentials.json
+**/appsettings.local.json
+
+# Databases / runtime data (may contain user data)
+*.db
+*.sqlite
+*.sqlite3
+backend/oracle.db
+
+# Node / extension
+node_modules/
+dist/
+*.log
+
+# OS / editor / agent
+.DS_Store
+.idea/
+.vscode/
+
+# Local agent/runtime state
+backend/.cache/
+*.local

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="popup.css" />
+    <title>Orca</title>
+  </head>
+  <body>
+    <div class="app">
+      <header class="topbar">
+        <div class="brand">
+          <span class="logo">◎</span>
+          <div class="brand-text">
+            <div class="title">Orca</div>
+            <div class="subtitle">Teamwork Graph for AI agents</div>
+          </div>
+        </div>
+        <div class="status-pill" id="statusPill" title="Backend status">
+          <span class="dot" id="statusDot"></span>
+          <span id="statusText">checking…</span>
+        </div>
+      </header>
+
+      <div class="ask-row">
+        <textarea
+          id="question"
+          class="question"
+          rows="2"
+          placeholder="Ask Orca anything about your teamwork graph…"
+        ></textarea>
+        <button id="askBtn" class="ask-btn">Ask</button>
+      </div>
+
+      <div class="examples" id="examples">
+        <div class="examples-label">Try:</div>
+        <button class="chip" data-q="Who do I need to unblock Checkout v2?">
+          Who do I need to unblock Checkout v2?
+        </button>
+        <button class="chip" data-q="Who owns Identity Tokens?">
+          Who owns Identity Tokens?
+        </button>
+        <button class="chip" data-q="How is Priya connected to David Chen?">
+          How is Priya connected to David Chen?
+        </button>
+        <button class="chip" data-q="What decisions affect the Platform Service Mesh?">
+          What decisions affect the Platform Service Mesh?
+        </button>
+      </div>
+
+      <div class="panel-action">
+        <button id="openPanelBtn" class="ghost-btn">
+          Open in-page panel (⌘⇧O / Ctrl+Shift+O)
+        </button>
+      </div>
+
+      <div id="result" class="result" hidden></div>
+
+      <details class="settings">
+        <summary>Settings</summary>
+        <label class="settings-label" for="baseUrl">Backend base URL</label>
+        <div class="settings-row">
+          <input
+            id="baseUrl"
+            class="settings-input"
+            type="text"
+            placeholder="http://127.0.0.1:8000"
+          />
+          <button id="saveUrlBtn" class="ghost-btn small">Save</button>
+        </div>
+        <div class="settings-hint" id="settingsHint"></div>
+      </details>
+    </div>
+
+    <script src="lib/markdown.js"></script>
+    <script src="lib/render.js"></script>
+    <script src="popup.js"></script>
+  </body>
+</html>

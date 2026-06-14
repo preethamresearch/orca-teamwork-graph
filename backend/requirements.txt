@@ -1,0 +1,11 @@
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+pydantic==2.10.4
+python-dotenv==1.0.1
+httpx==0.28.1
+
+# --- Azure AI Foundry (optional at runtime; backend runs in local-demo mode without them) ---
+azure-ai-projects==1.0.0b7
+azure-ai-agents==1.0.0b3
+azure-identity==1.19.0
+azure-search-documents==11.5.2

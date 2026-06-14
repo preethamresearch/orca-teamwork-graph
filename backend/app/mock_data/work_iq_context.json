@@ -1,0 +1,37 @@
+{
+  "_comment": "Sample Work IQ payload. In production this is fetched live from Microsoft Graph (Work IQ): recent files, emails, meetings, and Teams messages scoped to the signed-in user and their access rights. Used to personalize and freshen grounded answers.",
+  "user": {
+    "displayName": "Priya Nair",
+    "jobTitle": "Software Engineer II",
+    "department": "Platform Engineering",
+    "groups": ["eng-all", "platform-team", "squad-payments"]
+  },
+  "recent_signals": [
+    {
+      "type": "meeting",
+      "title": "Payments squad onboarding sync",
+      "when": "2026-06-13T15:00:00Z",
+      "snippet": "Walked through cx CLI, Key Vault access, and the staging deploy flow for new joiners."
+    },
+    {
+      "type": "email",
+      "from": "people@contoso.com",
+      "subject": "Your 2026 L&D budget is now active",
+      "when": "2026-06-10T09:12:00Z",
+      "snippet": "Your $2,000 professional development budget for plan year 2026 is available in Workday."
+    },
+    {
+      "type": "file",
+      "title": "payments-service-runbook.md",
+      "location": "SharePoint > Platform > Payments",
+      "when": "2026-06-12T18:40:00Z",
+      "snippet": "Sev2 response steps and the cx secrets sync troubleshooting checklist."
+    },
+    {
+      "type": "teams_message",
+      "channel": "#platform-eng",
+      "when": "2026-06-13T20:05:00Z",
+      "snippet": "Reminder: production deploys now require 2-person approval in contoso/deploy."
+    }
+  ]
+}

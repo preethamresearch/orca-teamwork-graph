@@ -1,0 +1,8 @@
+# Minimal deps to run Oracle in LOCAL-DEMO mode (no Azure cloud calls).
+# For live Azure AI Foundry, also install requirements.txt.
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+pydantic==2.10.4
+python-dotenv==1.0.1
+httpx==0.28.1
+mcp>=1.0          # MCP client connector (ingest from any MCP server)

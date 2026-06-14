@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+# Thin launcher: run oracle.py with the backend's virtualenv python.
+exec "/Users/preethams/Developer/oracle/backend/.venv/bin/python" "$(dirname "$0")/oracle.py" "$@"

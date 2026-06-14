@@ -1,0 +1,10 @@
+# Orca MCP server dependencies.
+# Official Python MCP SDK (provides mcp.server.fastmcp.FastMCP + stdio transport).
+mcp[cli]>=1.0
+
+# NOTE: the server also imports the Orca backend package from
+#   ../backend/app
+# (added to sys.path at runtime). Install the backend's own requirements into
+# the same environment, or simply reuse the backend venv at
+#   ../backend/.venv
+# which already has both the backend deps and mcp[cli] installed.
