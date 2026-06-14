@@ -235,7 +235,8 @@ function msalClientId() {
 
 async function signInMicrosoft() {
   const clientId = msalClientId();
-  if (!clientId || !window.msal) { return openMsConfigModal(); }
+  if (!clientId) { return openMsConfigModal(); }      // only ask if truly unconfigured
+  if (!window.msal) { toast("Sign-in is still loading — try again in a second.", "err"); return; }
   const btn = document.getElementById("msSignin");
   btn.disabled = true; btn.innerHTML = `<span class="spinner"></span> Signing in…`;
   try {
