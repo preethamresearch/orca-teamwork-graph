@@ -821,3 +821,6 @@ a { color: inherit; }
 
 /* fix: keep mini-graph chips visible after entrance (earlier rule set opacity:0) */
 .mini-chip{ opacity: 1; }
+
+/* fix: edges must stay drawn after animating in (both = hidden before, drawn after) */
+.mini-link{ animation: linkDraw 1.1s ease both !important; }
