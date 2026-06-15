@@ -205,7 +205,7 @@ function renderLanding() {
       <section class="integrations">
         <div class="int-eyebrow">◈ Connect your entire stack</div>
         <h2 class="int-title"><span class="grad">1,000+</span> integrations, one graph</h2>
-        <p class="int-sub">Google Drive, Microsoft 365, Slack, Jira, Notion, GitHub, Salesforce and more — connected via <b>Composio</b> &amp; <b>MCP</b>. Every tool your team runs on, unified into context your agents can reason over.</p>
+        <p class="int-sub">Google Drive, Microsoft 365, Slack, Jira, Notion, GitHub, Salesforce and more — connected through open standards like <b>MCP</b>. Every tool your team runs on, unified into context your agents can reason over.</p>
         ${integrationsMarquee()}
       </section>
     </div>
@@ -1116,7 +1116,7 @@ function openConnectPanel() {
         <h2>Add source / knowledge</h2>
         <p class="sub">Connect a tool or paste knowledge. Orca extracts objects and links into your graph.</p>
         <div class="int-banner">
-          <div class="int-banner-text"><b>1,000+ integrations</b> via Composio &amp; MCP</div>
+          <div class="int-banner-text"><b>1,000+ integrations</b> · via MCP &amp; open connectors</div>
           ${integrationsMarquee()}
         </div>
 
