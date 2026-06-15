@@ -86,4 +86,4 @@ Python (FastAPI) · SQLite · Azure AI Foundry / **Azure AI Search (Foundry IQ, 
 The repo runs offline in **local-demo mode** (deterministic graph reasoning + local grounding) and flips to **live Foundry IQ** automatically when Azure AI Search creds are set (they are, in the live deployment). The generative layer is pluggable: Azure OpenAI model deployment is **quota-gated on the student subscription**, so generation currently uses an NVIDIA model — the Azure AI Foundry Agent path is wired and activates on quota approval. All secrets are environment/secret-managed; none are committed.
 
 ## Team
-- Preetham (preetham.s@benisontech.com)
+- Preetham (preethamshyam123@gmail.com)
