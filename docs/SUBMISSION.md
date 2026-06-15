@@ -6,7 +6,7 @@
 ## Links
 - **🌐 Live demo:** https://orca.icysea-801c5df3.centralindia.azurecontainerapps.io
 - **💻 Public repo:** https://github.com/preethamresearch/orca-teamwork-graph
-- **🎥 Demo video:** _(add your YouTube/Vimeo link)_
+- **🎥 Demo video:** https://www.youtube.com/watch?v=Fu12Xl7WK_s
 
 > Sign in with Microsoft (real Entra/MSAL), or "Use a blank workspace." A seeded demo workspace is available via the in‑app **Load sample data**.
 

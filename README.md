@@ -6,6 +6,13 @@ Orca doesn't just give AI agents *data* — it gives them **structure to think w
 
 Built for the **Microsoft Agents League Hackathon 2026** — *Enterprise Agents* track.
 
+## ▶ Watch the demo
+
+[![Watch the Orca demo](https://img.youtube.com/vi/Fu12Xl7WK_s/maxresdefault.jpg)](https://www.youtube.com/watch?v=Fu12Xl7WK_s)
+
+*▶ Watch the 5-minute demo: https://www.youtube.com/watch?v=Fu12Xl7WK_s*
+
+
 ---
 
 ## Why this wins (mapped to the official judging rubric)
