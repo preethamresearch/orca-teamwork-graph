@@ -243,9 +243,12 @@ function drawMiniGraph(host) {
   ];
   const links = [[0, 2], [0, 1], [1, 3], [1, 2], [1, 4], [3, 5], [2, 5]];
   const N = nodes.length;
+  // approximate each chip's center so edges visibly connect to every node (chips vary in width)
+  const cx = (n) => n.x + Math.min(150, n.label.length * 6.6 + 26) / 2;
+  const cy = (n) => n.y + 15;
   // each edge "connects" right after its SOURCE node zooms (node a zooms at 1+a) → flowing loop
   const svg = `<svg class="mini-svg" viewBox="0 0 320 300">${links
-    .map(([a, b]) => `<line class="mini-link" style="animation-delay:${(1 + a + 0.25).toFixed(2)}s" x1="${nodes[a].x + 30}" y1="${nodes[a].y + 12}" x2="${nodes[b].x + 30}" y2="${nodes[b].y + 12}" stroke-width="1.6"/>`)
+    .map(([a, b]) => `<line class="mini-link" style="animation-delay:${(1 + a + 0.25).toFixed(2)}s" x1="${cx(nodes[a]).toFixed(0)}" y1="${cy(nodes[a]).toFixed(0)}" x2="${cx(nodes[b]).toFixed(0)}" y2="${cy(nodes[b]).toFixed(0)}" stroke-width="1.6"/>`)
     .join("")}</svg>`;
   host.innerHTML = svg + nodes.map((n, i) => {
     const pale = isLightColor(n.c);
