@@ -241,14 +241,15 @@ function drawMiniGraph(host) {
   ];
   const links = [[0, 2], [0, 1], [1, 3], [1, 2], [1, 4], [3, 5], [2, 5]];
   const svg = `<svg class="mini-svg" viewBox="0 0 320 300">${links
-    .map(([a, b]) => `<line x1="${nodes[a].x + 30}" y1="${nodes[a].y + 12}" x2="${nodes[b].x + 30}" y2="${nodes[b].y + 12}" stroke="rgba(160,170,185,0.35)" stroke-width="1.2"/>`)
+    .map(([a, b], i) => `<line class="mini-link" style="animation-delay:${(i * 0.12).toFixed(2)}s" x1="${nodes[a].x + 30}" y1="${nodes[a].y + 12}" x2="${nodes[b].x + 30}" y2="${nodes[b].y + 12}" stroke="rgba(120,140,180,0.45)" stroke-width="1.4"/>`)
     .join("")}</svg>`;
-  host.innerHTML = svg + nodes.map((n) => {
+  host.innerHTML = svg + nodes.map((n, i) => {
     const pale = isLightColor(n.c);
-    const style = n.fill
+    const delay = (0.5 + i * 0.13).toFixed(2);
+    const base = n.fill
       ? `left:${n.x}px;top:${n.y}px;background:${n.c};color:${pale ? "#172b4d" : "#fff"};`
       : `left:${n.x}px;top:${n.y}px;background:#ffffff;color:${pale ? "#42526e" : n.c};border:1.5px solid ${pale ? "#c1c7d0" : n.c};`;
-    return `<div class="mini-chip" style="${style}">${esc(n.label)}</div>`;
+    return `<div class="mini-chip" style="${base}animation-delay:${delay}s">${esc(n.label)}</div>`;
   }).join("");
 }
 

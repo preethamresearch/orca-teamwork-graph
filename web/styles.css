@@ -779,3 +779,10 @@ a { color: inherit; }
 .hero .hero-actions{ animation: heroUp .6s ease .2s both; }
 .hero-visual{ animation: heroUp .7s ease .15s both; }
 @keyframes heroUp{ from{ opacity:0; transform:translateY(16px); } to{ opacity:1; } }
+
+/* ===== Animated hero mini-graph ===== */
+.mini-chip{ opacity:0; animation: chipIn .5s cubic-bezier(.2,.8,.2,1) forwards, chipFloat 5s ease-in-out infinite; }
+@keyframes chipIn{ from{ opacity:0; transform:translateY(10px) scale(.85);} to{ opacity:1; transform:translateY(0) scale(1);} }
+@keyframes chipFloat{ 0%,100%{ } 50%{ transform:translateY(-4px);} }
+.mini-link{ stroke-dasharray:240; stroke-dashoffset:240; animation: linkDraw 1s ease forwards; }
+@keyframes linkDraw{ to{ stroke-dashoffset:0; } }
