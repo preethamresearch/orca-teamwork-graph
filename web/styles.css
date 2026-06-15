@@ -718,7 +718,9 @@ a { color: inherit; }
 .connect-result.soon-note{ color:#5e6c84 !important; }
 
 /* onboarding */
-.empty-state.onboarding{ max-width:520px; }
+/* keep the container full-bleed (so flex centering works); constrain inner width instead */
+.empty-state.onboarding .onb-steps{ width:100%; max-width:460px; }
+.empty-state.onboarding .row{ max-width:460px; }
 .onb-steps{ display:flex; flex-direction:column; gap:10px; margin:18px 0 22px; text-align:left; }
 .onb-step{ display:flex; align-items:center; gap:12px; padding:11px 14px; border:1px solid var(--border-soft); border-radius:10px; background:var(--panel-2); }
 .onb-step .msi{ font-size:22px; color:var(--text-faint); }
