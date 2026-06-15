@@ -761,3 +761,21 @@ a { color: inherit; }
 /* landing nav links are interactive */
 .landing-nav .nav-links a { cursor: pointer; transition: color .15s ease; text-decoration: none; }
 .landing-nav .nav-links a:hover { color: var(--accent); }
+
+/* ===== Landing logo / hero entrance animations ===== */
+.landing-nav .wordmark{
+  background:linear-gradient(90deg,#4c9aff 0%,#a17bff 40%,#4c9aff 80%);
+  background-size:200% auto; -webkit-background-clip:text; background-clip:text;
+  -webkit-text-fill-color:transparent; color:transparent;
+  animation: wmShimmer 3.2s linear infinite;
+}
+@keyframes wmShimmer{ to{ background-position:200% center; } }
+.landing-nav .brand .logo{ animation: logoPop .6s cubic-bezier(.2,.8,.2,1) backwards, logoFloat 4.5s ease-in-out 0.6s infinite; }
+@keyframes logoPop{ from{ transform:scale(.5) rotate(-10deg); opacity:0; } }
+@keyframes logoFloat{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-3px); } }
+.hero h1{ animation: heroUp .6s ease both; }
+.hero .hero-eyebrow{ animation: heroUp .6s ease both; }
+.hero .tagline{ animation: heroUp .6s ease .1s both; }
+.hero .hero-actions{ animation: heroUp .6s ease .2s both; }
+.hero-visual{ animation: heroUp .7s ease .15s both; }
+@keyframes heroUp{ from{ opacity:0; transform:translateY(16px); } to{ opacity:1; } }

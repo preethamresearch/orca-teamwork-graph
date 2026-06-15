@@ -157,7 +157,7 @@ function renderLanding() {
   const view = h(`
     <div class="landing">
       <nav class="landing-nav">
-        <div class="brand"><span class="logo">${orcaSvg()}</span> Orca</div>
+        <div class="brand"><span class="logo">${orcaSvg()}</span> <span class="wordmark">Orca</span></div>
         <div class="nav-links">
           <a data-scroll="features">Product</a>
           <a data-scroll="integrations">Integrations</a>
