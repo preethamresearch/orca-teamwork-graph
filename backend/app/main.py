@@ -191,6 +191,20 @@ def connect(request: Request, req: ConnectReq):
         raise HTTPException(400, str(e))
 
 
+class NotionReq(BaseModel):
+    token: str
+    query: str = ""
+
+
+@app.post("/connectors/notion")
+def notion(request: Request, req: NotionReq):
+    _, ws = _ws(request)
+    try:
+        return connectors.ingest_notion(ws["id"], req.token, req.query)
+    except Exception as e:
+        raise HTTPException(400, f"Notion ingest failed: {e}")
+
+
 class McpReq(BaseModel):
     command: str | None = None
     args: list[str] = []

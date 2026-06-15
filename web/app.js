@@ -56,6 +56,7 @@ const API = {
   github: (repo, token) => api("/connectors/github", { method: "POST", body: { repo, token: token || undefined } }),
   connect: (kind) => api("/connectors/connect", { method: "POST", body: { kind } }),
   mcp: (command, args, name) => api("/connectors/mcp", { method: "POST", body: { command, args, name } }),
+  notion: (token, query) => api("/connectors/notion", { method: "POST", body: { token, query } }),
   objects: (kind) => api("/objects?kind=" + encodeURIComponent(kind)),
   createObject: (kind, label, fields) => api("/objects", { method: "POST", body: { kind, label, fields } }),
   updateObject: (id, body) => api("/objects/" + encodeURIComponent(id), { method: "PUT", body }),
@@ -1120,15 +1121,18 @@ function openConnectPanel() {
             <div class="connect-result" id="mcpRes"></div>
           </div>
 
+          <div class="connector-card full">
+            <div class="ch"><div class="ci"><span class="msi">description</span></div><div><div class="cn">Notion</div><div class="cd">Pull your Notion pages into the graph (integration token)</div></div></div>
+            <div class="field"><input id="nzToken" placeholder="Notion integration token (ntn_… / secret_…)" /></div>
+            <div class="field"><input id="nzQuery" placeholder="Filter pages by keyword (optional)" /></div>
+            <button class="btn btn-sm btn-primary" id="nzBtn">Connect Notion</button>
+            <div class="connect-result" id="nzRes"></div>
+          </div>
+
           <div class="connector-card">
             <div class="ch"><div class="ci"><span class="msi">window</span></div><div><div class="cn">Microsoft 365</div></div></div>
             <button class="btn btn-sm" data-connect="microsoft365" style="width:100%">Connect <span class="badge soon" style="margin-left:6px">OAuth soon</span></button>
             <div class="connect-result" data-res="microsoft365"></div>
-          </div>
-          <div class="connector-card">
-            <div class="ch"><div class="ci"><span class="msi">description</span></div><div><div class="cn">Notion</div></div></div>
-            <button class="btn btn-sm" data-connect="notion" style="width:100%">Connect <span class="badge soon" style="margin-left:6px">OAuth soon</span></button>
-            <div class="connect-result" data-res="notion"></div>
           </div>
           <div class="connector-card">
             <div class="ch"><div class="ci"><span class="msi">add_to_drive</span></div><div><div class="cn">Google Drive</div></div></div>
@@ -1181,6 +1185,21 @@ function openConnectPanel() {
       await refreshAfterConnect();
     } catch (e) { res.className = "connect-result err"; res.textContent = "Failed: " + e.message; }
     b.disabled = false; b.textContent = "Connect repo";
+  });
+
+  // Notion connector — real token-based ingestion
+  overlay.querySelector("#nzBtn").addEventListener("click", async () => {
+    const token = overlay.querySelector("#nzToken").value.trim();
+    const query = overlay.querySelector("#nzQuery").value.trim();
+    const res = overlay.querySelector("#nzRes");
+    if (!token) { res.className = "connect-result err"; res.textContent = "Paste your Notion integration token."; return; }
+    const b = overlay.querySelector("#nzBtn"); b.disabled = true; b.innerHTML = `<span class="spinner"></span> Connecting…`;
+    try {
+      const r = await API.notion(token, query);
+      res.className = "connect-result"; res.textContent = `✓ Imported ${r.pages} Notion page(s).`;
+      await refreshAfterConnect();
+    } catch (e) { res.className = "connect-result err"; res.textContent = "Failed: " + e.message; }
+    b.disabled = false; b.textContent = "Connect Notion";
   });
 
   // MCP server connector — Orca acts as an MCP client and ingests the server's resources

@@ -79,6 +79,70 @@ def ingest_github(workspace_id: str, repo: str, token: str = "") -> dict:
     return {"source_id": src, "repo": repo, "people": people, "project": proj_id}
 
 
+# ---------------- Notion (real, token-based REST) ----------------
+def ingest_notion(workspace_id: str, token: str, query: str = "", limit: int = 15) -> dict:
+    """Pull pages from a Notion workspace via the Notion API (integration token) and
+    ingest them as Page objects + grounding docs. Like the GitHub connector, this is
+    a real API integration that needs only a token (no OAuth dance)."""
+    token = (token or "").strip()
+    if not token:
+        raise ValueError("a Notion integration token is required")
+    headers = {"Authorization": f"Bearer {token}", "Notion-Version": "2022-06-28",
+               "Content-Type": "application/json"}
+    src = db.add_source(workspace_id, "notion", "Notion", "connected")["id"]
+
+    with httpx.Client(base_url="https://api.notion.com/v1", headers=headers, timeout=20) as nz:
+        body = {"page_size": limit, "filter": {"property": "object", "value": "page"}}
+        if query:
+            body["query"] = query
+        r = nz.post("/search", json=body)
+        r.raise_for_status()
+        results = r.json().get("results", [])
+        pages = 0
+        for pg in results[:limit]:
+            title = _notion_title(pg)
+            text = _notion_page_text(nz, pg.get("id", ""))
+            body_text = f"{title}\n{text}".strip()
+            objects.create_object(workspace_id, "page", title or "Untitled",
+                                  {"source": "Notion", "summary": (text or "")[:200],
+                                   "url": pg.get("url", ""), "body": body_text}, src)
+            from .extract import extract as _extract
+            frag = _extract(body_text, title)
+            for n in frag["nodes"]:
+                db.upsert_node(workspace_id, n["id"], n["kind"], n["label"], n.get("attrs", {}), src)
+            for e in frag["edges"]:
+                db.add_edge(workspace_id, e["type"], e["source"], e["target"], src)
+            pages += 1
+    return {"source_id": src, "name": "Notion", "pages": pages}
+
+
+def _notion_title(pg: dict) -> str:
+    props = pg.get("properties", {})
+    for v in props.values():
+        if v.get("type") == "title":
+            return "".join(t.get("plain_text", "") for t in v.get("title", [])).strip()
+    return pg.get("url", "Notion page").rsplit("/", 1)[-1].replace("-", " ")
+
+
+def _notion_page_text(nz, page_id: str, max_blocks: int = 40) -> str:
+    if not page_id:
+        return ""
+    try:
+        r = nz.get(f"/blocks/{page_id}/children", params={"page_size": max_blocks})
+        if r.status_code != 200:
+            return ""
+        out = []
+        for b in r.json().get("results", []):
+            bt = b.get(b.get("type", ""), {})
+            rich = bt.get("rich_text", []) if isinstance(bt, dict) else []
+            line = "".join(t.get("plain_text", "") for t in rich)
+            if line:
+                out.append(line)
+        return "\n".join(out)
+    except Exception:
+        return ""
+
+
 # ---------------- simulated connectors ----------------
 _SAMPLES = {
     "notion": ("Notion", "page", [
