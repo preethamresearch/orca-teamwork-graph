@@ -242,19 +242,22 @@ function drawMiniGraph(host) {
     { x: 210, y: 235, label: "◉ David Chen", c: "#4c9aff", fill: true },
   ];
   const links = [[0, 2], [0, 1], [1, 3], [1, 2], [1, 4], [3, 5], [2, 5]];
-  const svg = `<svg class="mini-svg" viewBox="0 0 320 300">${links
-    .map(([a, b], i) => `<line class="mini-link" style="animation-delay:${(i * 0.12).toFixed(2)}s" x1="${nodes[a].x + 30}" y1="${nodes[a].y + 12}" x2="${nodes[b].x + 30}" y2="${nodes[b].y + 12}" stroke="rgba(120,140,180,0.45)" stroke-width="1.4"/>`)
-    .join("")}</svg>`;
   const N = nodes.length;
+  // each edge "connects" right after its SOURCE node zooms (node a zooms at 1+a) → flowing loop
+  const svg = `<svg class="mini-svg" viewBox="0 0 320 300">${links
+    .map(([a, b]) => `<line class="mini-link" style="animation-delay:${(1 + a + 0.25).toFixed(2)}s" x1="${nodes[a].x + 30}" y1="${nodes[a].y + 12}" x2="${nodes[b].x + 30}" y2="${nodes[b].y + 12}" stroke-width="1.6"/>`)
+    .join("")}</svg>`;
   host.innerHTML = svg + nodes.map((n, i) => {
     const pale = isLightColor(n.c);
     const dIn = (0.4 + i * 0.13).toFixed(2);   // entrance order
-    const dSpot = (1 + i).toFixed(2);          // spotlight travels node→node (1s apart)
+    const dSpot = (1 + i).toFixed(2);          // node i zooms at 1+i (1s apart), looping
     const base = n.fill
       ? `left:${n.x}px;top:${n.y}px;background:${n.c};color:${pale ? "#172b4d" : "#fff"};`
       : `left:${n.x}px;top:${n.y}px;background:#ffffff;color:${pale ? "#42526e" : n.c};border:1.5px solid ${pale ? "#c1c7d0" : n.c};`;
-    return `<div class="mini-chip" style="${base}--spot-dur:${N}s;animation-delay:${dIn}s, ${dSpot}s">${esc(n.label)}</div>`;
+    return `<div class="mini-chip" style="${base}animation-delay:${dIn}s, ${dSpot}s">${esc(n.label)}</div>`;
   }).join("");
+  // shared cycle length so chips + edges loop in sync (1s per node + a little tail)
+  host.style.setProperty("--spot-dur", (N + 1) + "s");
 }
 
 // Microsoft Entra (MSAL) — real sign-in. Configure the Client ID once (stored locally

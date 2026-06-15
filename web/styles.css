@@ -824,3 +824,13 @@ a { color: inherit; }
 
 /* fix: edges must stay drawn after animating in (both = hidden before, drawn after) */
 .mini-link{ animation: linkDraw 1.1s ease both !important; }
+
+/* ===== Flowing loop: node zoom → edge connects → next → repeat ===== */
+.mini-chip{ opacity:1; animation: chipIn .55s cubic-bezier(.2,.8,.2,1) backwards, chipSpot var(--spot-dur,7s) ease-in-out infinite !important; }
+.mini-link{ stroke-dasharray:240; animation: linkPulse var(--spot-dur,7s) ease-in-out infinite both !important; }
+@keyframes linkPulse{
+  0%   { stroke-dashoffset:240; stroke:rgba(120,140,180,0.10); }
+  7%   { stroke-dashoffset:0;   stroke:rgba(76,154,255,0.95); stroke-width:2.6; }
+  18%  { stroke:rgba(120,140,180,0.42); stroke-width:1.6; }
+  100% { stroke-dashoffset:0;   stroke:rgba(120,140,180,0.42); }
+}
