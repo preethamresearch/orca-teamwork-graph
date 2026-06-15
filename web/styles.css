@@ -818,3 +818,6 @@ a { color: inherit; }
 .mini-link{ stroke-dasharray:240; stroke-dashoffset:240; animation: linkDraw 1s ease backwards !important; }
 @keyframes linkDraw{ to{ stroke-dashoffset:0; } }
 .cmp-row{ display:flex; gap:8px; }
+
+/* fix: keep mini-graph chips visible after entrance (earlier rule set opacity:0) */
+.mini-chip{ opacity: 1; }
