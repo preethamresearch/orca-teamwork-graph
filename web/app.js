@@ -73,6 +73,18 @@ const h = (html) => { const t = document.createElement("template"); t.innerHTML 
 const esc = (s) => String(s == null ? "" : s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const initials = (s) => (s || "?").split(/\s+/).map((w) => w[0]).slice(0, 2).join("").toUpperCase();
 
+// ---- Integrations marketing strip (real Composio toolkits: 1,000+) ----
+const INTEGRATION_SLUGS = [
+  "googledrive", "one_drive", "slack", "gmail", "jira", "notion", "github", "linear",
+  "salesforce", "hubspot", "confluence", "asana", "outlook", "share_point", "excel",
+  "microsoft_teams", "dropbox", "figma", "zoom", "trello", "clickup", "airtable", "gitlab", "intercom",
+];
+const logoImg = (s) => `<img class="int-logo" src="https://logos.composio.dev/api/${s}" alt="${s}" loading="lazy" onerror="this.style.visibility='hidden'"/>`;
+function integrationsMarquee() {
+  const row = INTEGRATION_SLUGS.map(logoImg).join("");
+  return `<div class="logo-marquee"><div class="logo-track">${row}${row}</div></div>`;
+}
+
 function toast(msg, kind = "") {
   const el = h(`<div class="toast ${kind}">${esc(msg)}</div>`);
   document.body.appendChild(el);
@@ -188,6 +200,13 @@ function renderLanding() {
           <h3>Grounded, cited, and traceable</h3>
           <p>Every answer traces back to its source page or decision and shows the path it walked — built to refuse rather than guess.</p>
         </div>
+      </section>
+
+      <section class="integrations">
+        <div class="int-eyebrow">◈ Connect your entire stack</div>
+        <h2 class="int-title"><span class="grad">1,000+</span> integrations, one graph</h2>
+        <p class="int-sub">Google Drive, Microsoft 365, Slack, Jira, Notion, GitHub, Salesforce and more — connected via <b>Composio</b> &amp; <b>MCP</b>. Every tool your team runs on, unified into context your agents can reason over.</p>
+        ${integrationsMarquee()}
       </section>
     </div>
   `);
@@ -1096,6 +1115,10 @@ function openConnectPanel() {
       <div class="modal" style="width:560px">
         <h2>Add source / knowledge</h2>
         <p class="sub">Connect a tool or paste knowledge. Orca extracts objects and links into your graph.</p>
+        <div class="int-banner">
+          <div class="int-banner-text"><b>1,000+ integrations</b> via Composio &amp; MCP</div>
+          ${integrationsMarquee()}
+        </div>
 
         <div class="connector-grid">
           <div class="connector-card full">

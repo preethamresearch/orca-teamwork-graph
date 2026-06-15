@@ -738,3 +738,22 @@ a { color: inherit; }
 .field select{ width:100%; background:#fff; border:1px solid #dfe1e6; color:#172b4d; padding:11px 13px; border-radius:9px; font-size:14px; font-family:inherit; outline:none; text-transform:capitalize; }
 .field select:focus{ border-color:var(--accent); }
 .kcard-meta .del-btn .msi{ font-size:14px; }
+
+/* ===== Integrations marketing strip (logos marquee) ===== */
+.integrations{ max-width:1180px; margin:0 auto; padding:20px 32px 100px; text-align:center; }
+.int-eyebrow{ display:inline-flex; align-items:center; gap:8px; font-size:12.5px; font-weight:600; color:var(--accent); background:rgba(76,154,255,0.10); border:1px solid rgba(76,154,255,0.28); padding:6px 13px; border-radius:999px; margin-bottom:18px; }
+.int-title{ font-size:40px; font-weight:900; letter-spacing:-0.03em; margin:0 0 14px; color:#172b4d; }
+.int-sub{ color:#5e6c84; font-size:16px; line-height:1.6; max-width:680px; margin:0 auto 34px; }
+.logo-marquee{ position:relative; overflow:hidden; -webkit-mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent); mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent); }
+.logo-track{ display:inline-flex; align-items:center; gap:30px; padding:14px 0; animation:marquee 36s linear infinite; will-change:transform; }
+.logo-marquee:hover .logo-track{ animation-play-state:paused; }
+@keyframes marquee{ from{ transform:translateX(0);} to{ transform:translateX(-50%);} }
+.int-logo{ height:38px; width:38px; object-fit:contain; border-radius:9px; background:#fff; padding:6px; border:1px solid #e4e7ec; box-shadow:0 2px 8px rgba(9,30,66,.06); flex:none; animation:logoIn .5s ease backwards; transition:transform .15s ease; }
+.int-logo:hover{ transform:translateY(-3px) scale(1.08); }
+@keyframes logoIn{ from{ opacity:0; transform:translateY(10px) scale(.9);} to{ opacity:1; } }
+/* compact banner inside the connect modal */
+.int-banner{ background:linear-gradient(135deg,#eef2ff,#f4f8ff); border:1px solid #e0e7ff; border-radius:12px; padding:12px 14px 6px; margin:14px 0 4px; }
+.int-banner-text{ font-size:12.5px; color:#42526e; margin-bottom:4px; }
+.int-banner-text b{ color:#3b3fd4; }
+.int-banner .int-logo{ height:30px; width:30px; }
+.int-banner .logo-track{ gap:18px; padding:8px 0; animation-duration:28s; }
