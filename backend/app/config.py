@@ -42,6 +42,9 @@ class Settings:
     foundry_iq_search_key: str = os.getenv("FOUNDRY_IQ_SEARCH_KEY", "").strip()
 
     # --- Work IQ (Microsoft Graph) ---
+    # --- Composio (managed OAuth for Drive / M365 / 1,000+ apps) ---
+    composio_api_key: str = os.getenv("COMPOSIO_API_KEY", "").strip()
+
     # --- NVIDIA NIM (OpenAI-compatible) — generative synthesis when Azure OpenAI quota is unavailable ---
     nvidia_api_key: str = os.getenv("NVIDIA_API_KEY", "").strip()
     nvidia_model: str = os.getenv("NVIDIA_MODEL", "nvidia/nemotron-3-ultra-550b-a55b").strip()

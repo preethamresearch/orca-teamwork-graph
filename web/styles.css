@@ -805,3 +805,16 @@ a { color: inherit; }
   88%  { stroke-dashoffset:240; }
   100% { stroke-dashoffset:240; }
 }
+
+/* ===== Hero mini-graph: entrance + recursive traveling spotlight (overrides earlier loops) ===== */
+.mini-chip{ animation: chipIn .55s cubic-bezier(.2,.8,.2,1) backwards, chipSpot var(--spot-dur,6s) ease-in-out infinite !important; }
+@keyframes chipIn{ from{ opacity:0; transform:translateY(10px) scale(.85);} to{ opacity:1; transform:translateY(0) scale(1);} }
+@keyframes chipSpot{
+  0%   { transform:scale(1); box-shadow:0 3px 12px rgba(9,30,66,.16); }
+  4%   { transform:scale(1.17); box-shadow:0 0 0 3px rgba(76,154,255,.55), 0 14px 30px rgba(76,154,255,.55); z-index:6; }
+  13%  { transform:scale(1); box-shadow:0 3px 12px rgba(9,30,66,.16); }
+  100% { transform:scale(1); box-shadow:0 3px 12px rgba(9,30,66,.16); }
+}
+.mini-link{ stroke-dasharray:240; stroke-dashoffset:240; animation: linkDraw 1s ease backwards !important; }
+@keyframes linkDraw{ to{ stroke-dashoffset:0; } }
+.cmp-row{ display:flex; gap:8px; }

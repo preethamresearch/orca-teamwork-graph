@@ -9,7 +9,7 @@ from fastapi import FastAPI, HTTPException, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 
-from . import __version__, auth, connectors, db, objects, seed
+from . import __version__, auth, composio_connector, connectors, db, objects, seed
 from .agent import ask
 from .config import settings
 from .graph import get_graph_for_workspace
@@ -25,6 +25,18 @@ app.add_middleware(
 )
 
 seed.seed_all()
+
+
+@app.middleware("http")
+async def no_cache_html(request: Request, call_next):
+    """Never cache index.html / the SPA shell, so deploys are picked up immediately
+    (versioned assets like app.js?v= stay cacheable)."""
+    resp = await call_next(request)
+    p = request.url.path
+    if p == "/" or p.endswith(".html") or p.endswith("/"):
+        resp.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+        resp.headers["Pragma"] = "no-cache"
+    return resp
 
 
 # ----------------------------- models -----------------------------
@@ -203,6 +215,28 @@ def notion(request: Request, req: NotionReq):
         return connectors.ingest_notion(ws["id"], req.token, req.query)
     except Exception as e:
         raise HTTPException(400, f"Notion ingest failed: {e}")
+
+
+class ComposioReq(BaseModel):
+    toolkit: str  # "googledrive" | "one_drive"
+
+
+@app.post("/connectors/composio/link")
+def composio_link(request: Request, req: ComposioReq):
+    _, ws = _ws(request)
+    try:
+        return composio_connector.connect_link(ws["id"], req.toolkit)
+    except Exception as e:
+        raise HTTPException(400, f"Composio connect failed: {e}")
+
+
+@app.post("/connectors/composio/sync")
+def composio_sync(request: Request, req: ComposioReq):
+    _, ws = _ws(request)
+    try:
+        return composio_connector.sync(ws["id"], ws["id"], req.toolkit)
+    except Exception as e:
+        raise HTTPException(400, f"Composio sync failed: {e}")
 
 
 class McpReq(BaseModel):

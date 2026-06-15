@@ -57,6 +57,8 @@ const API = {
   connect: (kind) => api("/connectors/connect", { method: "POST", body: { kind } }),
   mcp: (command, args, name) => api("/connectors/mcp", { method: "POST", body: { command, args, name } }),
   notion: (token, query) => api("/connectors/notion", { method: "POST", body: { token, query } }),
+  composioLink: (toolkit) => api("/connectors/composio/link", { method: "POST", body: { toolkit } }),
+  composioSync: (toolkit) => api("/connectors/composio/sync", { method: "POST", body: { toolkit } }),
   objects: (kind) => api("/objects?kind=" + encodeURIComponent(kind)),
   createObject: (kind, label, fields) => api("/objects", { method: "POST", body: { kind, label, fields } }),
   updateObject: (id, body) => api("/objects/" + encodeURIComponent(id), { method: "PUT", body }),
@@ -243,13 +245,15 @@ function drawMiniGraph(host) {
   const svg = `<svg class="mini-svg" viewBox="0 0 320 300">${links
     .map(([a, b], i) => `<line class="mini-link" style="animation-delay:${(i * 0.12).toFixed(2)}s" x1="${nodes[a].x + 30}" y1="${nodes[a].y + 12}" x2="${nodes[b].x + 30}" y2="${nodes[b].y + 12}" stroke="rgba(120,140,180,0.45)" stroke-width="1.4"/>`)
     .join("")}</svg>`;
+  const N = nodes.length;
   host.innerHTML = svg + nodes.map((n, i) => {
     const pale = isLightColor(n.c);
-    const delay = (0.5 + i * 0.13).toFixed(2);
+    const dIn = (0.4 + i * 0.13).toFixed(2);   // entrance order
+    const dSpot = (1 + i).toFixed(2);          // spotlight travels node→node (1s apart)
     const base = n.fill
       ? `left:${n.x}px;top:${n.y}px;background:${n.c};color:${pale ? "#172b4d" : "#fff"};`
       : `left:${n.x}px;top:${n.y}px;background:#ffffff;color:${pale ? "#42526e" : n.c};border:1.5px solid ${pale ? "#c1c7d0" : n.c};`;
-    return `<div class="mini-chip" style="${base}animation-delay:${delay}s">${esc(n.label)}</div>`;
+    return `<div class="mini-chip" style="${base}--spot-dur:${N}s;animation-delay:${dIn}s, ${dSpot}s">${esc(n.label)}</div>`;
   }).join("");
 }
 
@@ -1163,14 +1167,14 @@ function openConnectPanel() {
           </div>
 
           <div class="connector-card">
-            <div class="ch"><div class="ci"><span class="msi">window</span></div><div><div class="cn">Microsoft 365</div></div></div>
-            <button class="btn btn-sm" data-connect="microsoft365" style="width:100%">Connect <span class="badge soon" style="margin-left:6px">OAuth soon</span></button>
-            <div class="connect-result" data-res="microsoft365"></div>
+            <div class="ch"><div class="ci"><span class="msi">window</span></div><div><div class="cn">Microsoft 365</div><div class="cd">OneDrive via Composio OAuth</div></div></div>
+            <div class="cmp-row"><button class="btn btn-sm" data-cmp-link="one_drive" style="flex:1">Connect</button><button class="btn btn-sm btn-primary" data-cmp-sync="one_drive" style="flex:1">Sync</button></div>
+            <div class="connect-result" data-cmp-res="one_drive"></div>
           </div>
           <div class="connector-card">
-            <div class="ch"><div class="ci"><span class="msi">add_to_drive</span></div><div><div class="cn">Google Drive</div></div></div>
-            <button class="btn btn-sm" data-connect="googledrive" style="width:100%">Connect <span class="badge soon" style="margin-left:6px">OAuth soon</span></button>
-            <div class="connect-result" data-res="googledrive"></div>
+            <div class="ch"><div class="ci"><span class="msi">add_to_drive</span></div><div><div class="cn">Google Drive</div><div class="cd">via Composio OAuth</div></div></div>
+            <div class="cmp-row"><button class="btn btn-sm" data-cmp-link="googledrive" style="flex:1">Connect</button><button class="btn btn-sm btn-primary" data-cmp-sync="googledrive" style="flex:1">Sync</button></div>
+            <div class="connect-result" data-cmp-res="googledrive"></div>
           </div>
           <div class="connector-card">
             <div class="ch"><div class="ci"><span class="msi">dataset</span></div><div><div class="cn">Contoso sample</div></div></div>
@@ -1219,6 +1223,27 @@ function openConnectPanel() {
     } catch (e) { res.className = "connect-result err"; res.textContent = "Failed: " + e.message; }
     b.disabled = false; b.textContent = "Connect repo";
   });
+
+  // Composio (Drive / M365) — real OAuth: Connect opens consent, Sync ingests
+  overlay.querySelectorAll("[data-cmp-link]").forEach((b) => b.addEventListener("click", async () => {
+    const tk = b.dataset.cmpLink; const res = overlay.querySelector(`[data-cmp-res="${tk}"]`);
+    res.className = "connect-result"; res.textContent = "Opening consent…";
+    try {
+      const r = await API.composioLink(tk);
+      if (r.redirect_url) { window.open(r.redirect_url, "_blank", "noopener"); res.textContent = "↗ Authorize in the new tab, then click Sync."; }
+      else { res.className = "connect-result err"; res.textContent = "No consent link returned."; }
+    } catch (e) { res.className = "connect-result err"; res.textContent = "Failed: " + e.message; }
+  }));
+  overlay.querySelectorAll("[data-cmp-sync]").forEach((b) => b.addEventListener("click", async () => {
+    const tk = b.dataset.cmpSync; const res = overlay.querySelector(`[data-cmp-res="${tk}"]`);
+    b.disabled = true; b.innerHTML = `<span class="spinner"></span>`;
+    try {
+      const r = await API.composioSync(tk);
+      res.className = "connect-result"; res.textContent = `✓ ${r.name}: ${r.files} files → ${r.extracted_nodes} objects.`;
+      await refreshAfterConnect();
+    } catch (e) { res.className = "connect-result err"; res.textContent = "Failed: " + e.message + " — click Connect & authorize first."; }
+    b.disabled = false; b.textContent = "Sync";
+  }));
 
   // Notion connector — real token-based ingestion
   overlay.querySelector("#nzBtn").addEventListener("click", async () => {
