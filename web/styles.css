@@ -786,3 +786,22 @@ a { color: inherit; }
 @keyframes chipFloat{ 0%,100%{ } 50%{ transform:translateY(-4px);} }
 .mini-link{ stroke-dasharray:240; stroke-dashoffset:240; animation: linkDraw 1s ease forwards; }
 @keyframes linkDraw{ to{ stroke-dashoffset:0; } }
+
+/* ===== Hero mini-graph: looping, ordered build → hold → reset ===== */
+.mini-chip{ animation: chipLoop 8s ease-in-out infinite !important; }
+@keyframes chipLoop{
+  0%   { opacity:0; transform:translateY(10px) scale(.85); }
+  7%   { opacity:1; transform:translateY(0) scale(1); }
+  45%  { transform:translateY(-4px); }
+  72%  { opacity:1; transform:translateY(0); }
+  86%  { opacity:0; transform:translateY(8px) scale(.9); }
+  100% { opacity:0; transform:translateY(10px) scale(.85); }
+}
+.mini-link{ animation: linkLoop 8s linear infinite !important; }
+@keyframes linkLoop{
+  0%   { stroke-dashoffset:240; }
+  9%   { stroke-dashoffset:0; }
+  78%  { stroke-dashoffset:0; }
+  88%  { stroke-dashoffset:240; }
+  100% { stroke-dashoffset:240; }
+}
