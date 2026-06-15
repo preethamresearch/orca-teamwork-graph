@@ -757,3 +757,7 @@ a { color: inherit; }
 .int-banner-text b{ color:#3b3fd4; }
 .int-banner .int-logo{ height:30px; width:30px; }
 .int-banner .logo-track{ gap:18px; padding:8px 0; animation-duration:28s; }
+
+/* landing nav links are interactive */
+.landing-nav .nav-links a { cursor: pointer; transition: color .15s ease; text-decoration: none; }
+.landing-nav .nav-links a:hover { color: var(--accent); }

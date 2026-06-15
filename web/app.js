@@ -158,10 +158,15 @@ function renderLanding() {
     <div class="landing">
       <nav class="landing-nav">
         <div class="brand"><span class="logo">${orcaSvg()}</span> Orca</div>
-        <div class="nav-links"><span>Product</span><span>Integrations</span><span>Agents</span><span>Docs</span></div>
+        <div class="nav-links">
+          <a data-scroll="features">Product</a>
+          <a data-scroll="integrations">Integrations</a>
+          <a data-scroll="hero">Agents</a>
+          <a href="https://github.com/preethamresearch/orca-teamwork-graph" target="_blank" rel="noopener">Docs ↗</a>
+        </div>
       </nav>
 
-      <section class="hero">
+      <section class="hero" id="hero">
         <div>
           <div class="hero-eyebrow">◈ Built for the Microsoft Agents League · Enterprise Agents</div>
           <h1>The <span class="grad">Teamwork Graph</span><br/>for AI agents.</h1>
@@ -179,7 +184,7 @@ function renderLanding() {
         </div>
       </section>
 
-      <section class="features">
+      <section class="features" id="features">
         <div class="feature">
           <span class="ic"><span class="msi">hub</span></span>
           <h3>Your work as a living graph</h3>
@@ -202,7 +207,7 @@ function renderLanding() {
         </div>
       </section>
 
-      <section class="integrations">
+      <section class="integrations" id="integrations">
         <div class="int-eyebrow">◈ Connect your entire stack</div>
         <h2 class="int-title"><span class="grad">1,000+</span> integrations, one graph</h2>
         <p class="int-sub">Google Drive, Microsoft 365, Slack, Jira, Notion, GitHub, Salesforce and more — connected through open standards like <b>MCP</b>. Every tool your team runs on, unified into context your agents can reason over.</p>
@@ -212,6 +217,10 @@ function renderLanding() {
   `);
   app.appendChild(view);
   drawMiniGraph(view.querySelector("#miniGraph"));
+  view.querySelectorAll(".nav-links [data-scroll]").forEach((a) => a.addEventListener("click", () => {
+    const el = view.querySelector("#" + a.dataset.scroll);
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+  }));
 
   view.querySelector("#msSignin").addEventListener("click", signInMicrosoft);
   view.querySelector("#blankWs").addEventListener("click", openBlankWorkspaceModal);
